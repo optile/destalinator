@@ -25,7 +25,7 @@ class Announcer(executor.Executor):
         return new
 
     def announce(self):
-        self.logger.info("Announcing")
+        self.logger.info("Announcing new channels")
         new = self.get_new_channels()
         for cname, creator, purpose in new:
             m = "Channel #{} was created by @{} with purpose: {}".format(cname, creator, purpose)

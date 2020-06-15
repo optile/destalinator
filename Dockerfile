@@ -14,5 +14,4 @@ ADD utils/*.py utils/
 ADD tests/* tests/
 ADD bin/test bin/
 RUN ./bin/test
-ENV DESTALINATOR_LOG_LEVEL WARNING
 CMD python scheduler.py

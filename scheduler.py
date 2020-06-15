@@ -42,10 +42,10 @@ def destalinate_job():
             announcer.Announcer().announce()
             flagger.Flagger().flag()
             logging.info("OK: destalinated")
-        except Exception as e:  # pylint: disable=W0703
+        except Exception:  # pylint: disable=W0703
             raven_client.captureException()
             if not get_config().sentry_dsn:
-                raise e
+                raise
     logging.info("END: destalinate_job")
 
 
