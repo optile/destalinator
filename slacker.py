@@ -218,6 +218,7 @@ class Slacker(WithLogger, WithConfig):
         orig_url = url
 
         while next_page is True:
+            cursor = None
             response = self.get_with_retry_to_json(url)
             channels += response['channels']
 
@@ -231,8 +232,6 @@ class Slacker(WithLogger, WithConfig):
             else:
                 next_page = False
 
-            cursor = None
-
         return channels
 
     def get_all_user_objects(self):
@@ -243,6 +242,7 @@ class Slacker(WithLogger, WithConfig):
         orig_url = url
 
         while next_page is True:
+            cursor = None
             response = self.get_with_retry_to_json(url)
             members += response['members']
 
@@ -256,8 +256,6 @@ class Slacker(WithLogger, WithConfig):
                     + response['response_metadata']['next_cursor']
             else:
                 next_page = False
-
-            cursor = None
 
         return members
 
