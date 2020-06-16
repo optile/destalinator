@@ -56,6 +56,7 @@ class Destalinator(WithLogger, WithConfig):
         info = self.slacker.get_channel_info(channel_name)
         age = info['age']
         age = age / 86400
+        self.logger.debug("%s - Channel is %s days old (age=%s)", channel_name, age, info['age'])
         return age > days
 
     def flush_channel_cache(self, channel_name):
@@ -109,19 +110,21 @@ class Destalinator(WithLogger, WithConfig):
         Return True if channel represented by `channel_name` is stale.
         Definition of stale is: no messages in the last `days` which are not from config.ignore_users.
         """
+        self.logger.debug("Checking channel: %s", channel_name)
         if not self.channel_minimum_age(channel_name, days):
+            self.logger.debug("%s - Not old enough", channel_name)
             return False
 
         if self.ignore_channel(channel_name):
+            self.logger.debug("%s - Ignored", channel_name)
             return False
 
         if self.slacker.channel_has_only_restricted_members(channel_name):
+            self.logger.debug("%s - Full of restricted members", channel_name)
             return False
 
         messages = self.get_messages(channel_name, days)
-
-        # return True (stale) if none of the messages match the criteria below
-        return not any(
+        message_block = not any(
             # the message is not from an ignored user
             x.get("user") not in self.config.ignore_users \
             and x.get("username") not in self.config.ignore_users \
@@ -132,6 +135,14 @@ class Destalinator(WithLogger, WithConfig):
             )
             for x in messages
         )
+
+        if message_block:
+            self.logger.debug("%s - Stale", channel_name)
+        else:
+            self.logger.debug("%s - Has recent messages", channel_name)
+
+        # return True (stale) if none of the messages match the criteria below
+        return message_block
 
     # channel actions
 
