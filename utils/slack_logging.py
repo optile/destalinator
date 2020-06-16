@@ -23,7 +23,11 @@ class SlackHandler(logging.Handler, WithLogger):
         self.slackbot.say(get_config().log_channel, record.getMessage())
 
 
+logging_initialized = False
+
+
 def set_up_slack_logger(slackbot=None):
+    global logging_initialized
     """
     Sets up a handler and formatter on a given `logging.Logger` object.
 
@@ -33,15 +37,20 @@ def set_up_slack_logger(slackbot=None):
     * `default_level` - The default log level if one is not set in the environment.
     * `slackbot` - A slackbot.Slackbot() object ready to send messages to a Slack channel.
     """
+    if logging_initialized:
+        return
+    logging_initialized = True
+
     logger = logging.getLogger()
+    logger.handlers = []
 
     _config = get_config()
 
-    slack_log_level = getattr(logging, _config.log_level.upper(), logging.INFO)
+    log_level = getattr(logging, _config.log_level.upper(), logging.INFO)
+    slack_log_level = getattr(logging, _config.slack_log_level.upper(), log_level)
 
     formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s')
-
-    logger.setLevel(logging.INFO)
+    logger.setLevel(log_level)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
